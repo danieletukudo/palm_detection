@@ -1,32 +1,41 @@
 import cv2
+import numpy as np
 import mediapipe as mp
+import matplotlib.pyplot as plt
+
 
 cap = cv2.VideoCapture(0)
-mpHands = mp.solutions.hands
-hands = mpHands.Hands(static_image_mode = True,
-max_num_hands =2,
-min_detection_confidence = 0.5)
-mpDraw = mp.solutions.drawing_utils
+# First step is to initialize the Hands class an store it in a variable
+mp_hands = mp.solutions.hands
+
+# Now second step is to set the hands function which will hold the landmarks points
+hands = mp_hands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=0.3)
+
+# Last step is to set up the drawing function of hands landmarks on the image
+mp_drawing = mp.solutions.drawing_utils
+
 
 while True:
     success, image = cap.read()
-    imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results = hands.process(imageRGB) 
+    results = hands.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    image_height, image_width, _ = image.shape
+
     if results.multi_hand_landmarks:
-        for handLms in results.multi_hand_landmarks: # working with each hand
-            for id, lm in enumerate(handLms.landmark):
-                h, w, c = image.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                print(cx,cy)
-                if id == 20 :
-                        #print ( f'{hands.HandLandmark(id).name}:')
-                        print(f'X: {lm.landmark[hands.HandLandmark(20).value].x * w}')
-                        print(f'Y: {lm.landmark[hands.HandLandmark(20).value].y * h}')
-                        print(f'Z: {lm.landmark[hands.HandLandmark(20).value].z * c}n')
 
-                   # cv2.circle(image, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
+        for hand_no, hand_landmarks in enumerate(results.multi_hand_landmarks):
+            
+        
+        
+              
+            print(f'{mp_hands.HandLandmark(20).name}:') 
+            print(f'x: {hand_landmarks.landmark[mp_hands.HandLandmark(20).value].x * image_width}')
+            print(f'y: {hand_landmarks.landmark[mp_hands.HandLandmark(20).value].y * image_height}')
+            print(f'z: {hand_landmarks.landmark[mp_hands.HandLandmark(20).value].z * image_width}n')
+                    
+        mp_drawing.draw_landmarks(image = image, landmark_list = hand_landmarks,
+                                        connections = mp_hands.HAND_CONNECTIONS)
 
-            mpDraw.draw_landmarks(image, handLms, mpHands.HAND_CONNECTIONS)
+
 
     cv2.imshow("Output", image)
     cv2.waitKey(1)
